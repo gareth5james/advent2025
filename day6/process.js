@@ -1,8 +1,7 @@
 const fs = require("fs");
-const { parse } = require("path");
 
 const input = fs
-  .readFileSync("./input.txt", "utf-8")
+  .readFileSync("./input-test.txt", "utf-8")
   .split("\n")
   .map((item) => item.trim().split(/\s+/));
 
@@ -28,14 +27,6 @@ inputRotated.forEach((line) => {
     case "*":
       computed = a * b * c * d;
       break;
-    case "-":
-      computed = a - b - c - d;
-      break;
-    case "/":
-      computed = a / b / c / d;
-      break;
-    default:
-      computed = null;
   }
 
   total += computed;
@@ -43,10 +34,11 @@ inputRotated.forEach((line) => {
 
 fs.writeFileSync("./output.txt", `Part 1: ${total}`);
 
+total = 0;
+
 const inputRotatedRTL = input[0]
   .map((_, colIndex) => input.map((row) => row[colIndex]))
   .map((row) => {
-    console.log(row);
     const a =
       (row[0]?.[3] ?? "") +
       (row[1]?.[3] ?? "") +
@@ -57,7 +49,6 @@ const inputRotatedRTL = input[0]
       (row[1]?.[2] ?? "") +
       (row[2]?.[2] ?? "") +
       (row[3]?.[2] ?? "");
-    ("");
     const c =
       (row[0]?.[1] ?? "") +
       (row[1]?.[1] ?? "") +
@@ -68,36 +59,40 @@ const inputRotatedRTL = input[0]
       (row[1]?.[0] ?? "") +
       (row[2]?.[0] ?? "") +
       (row[3]?.[0] ?? "");
-    ("");
     const operator = row[4];
-    console.log([a, b, c, d, operator]);
-    return [a, b, c, d, operator];
+    return [
+      a === "" ? null : parseInt(a),
+      b === "" ? null : parseInt(b),
+      c === "" ? null : parseInt(c),
+      d === "" ? null : parseInt(d),
+      operator,
+    ].filter((item) => item !== null);
   });
 
-/*
-inputRotatedRTL.forEach((line) => {
-  const [a, b, c, d, operator] = line;
-
+inputRotatedRTL.map((line) => {
   let computed;
-  switch (operator) {
+  let max = line.length - 1;
+  switch (line[max]) {
     case "+":
-      computed = a + b + c + d;
+      for (i = 1; i <= max; i++) {
+        if (i === 1) {
+          computed = line[0] + line[1];
+        } else if (i > 1 && i < max) {
+          computed += line[i];
+        }
+      }
       break;
     case "*":
-      computed = a * b * c * d;
+      for (i = 1; i <= max; i++) {
+        if (i === 1) {
+          computed = line[0] * line[1];
+        } else if (i > 1 && i < max) {
+          computed *= line[i];
+        }
+      }
       break;
-    case "-":
-      computed = a - b - c - d;
-      break;
-    case "/":
-      computed = a / b / c / d;
-      break;
-    default:
-      computed = null;
   }
-
   total += computed;
 });
 
-//fs.appendFileSync("./output.txt", `\nPart 2: ${total}`);
-*/
+fs.appendFileSync("./output.txt", `\nPart 2: ${total}`);
